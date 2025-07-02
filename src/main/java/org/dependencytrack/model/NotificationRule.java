@@ -49,13 +49,12 @@ import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 import javax.jdo.annotations.Unique;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
 
@@ -313,16 +312,7 @@ public class NotificationRule implements Serializable {
             this.notifyOn = null;
             return;
         }
-        StringBuilder sb = new StringBuilder();
-        List<NotificationGroup> list = new ArrayList<>(groups);
-        Collections.sort(list);
-        for (int i=0; i<list.size(); i++) {
-            sb.append(list.get(i));
-            if (i+1 < list.size()) {
-                sb.append(",");
-            }
-        }
-        this.notifyOn = sb.toString();
+        this.notifyOn = groups.stream().sorted().map(Enum::toString).collect(Collectors.joining(","));
     }
 
     public NotificationPublisher getPublisher() {
