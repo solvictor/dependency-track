@@ -62,6 +62,7 @@ import java.util.Optional;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -308,15 +309,8 @@ public class OsvDownloadTask implements LoggableSubscriber {
             }
         }
         // get largest ecosystem_specific severity from its affected packages
-        if (!advisory.getAffectedPackages().isEmpty()) {
-            List<Integer> severityLevels = new ArrayList<>();
-            for (OsvAffectedPackage vuln : advisory.getAffectedPackages()) {
-                severityLevels.add(vuln.getSeverity().getLevel());
-            }
-            Collections.sort(severityLevels);
-            return getSeverityByLevel(severityLevels.getLast());
-        }
-        return Severity.UNASSIGNED;
+        IntStream packageLevels = advisory.getAffectedPackages().stream().mapToInt(pkg -> pkg.getSeverity().getLevel());
+        return getSeverityByLevel(packageLevels.max().orElse(Severity.UNASSIGNED.getLevel()));
     }
 
     public Vulnerability.Source extractSource(String vulnId) {
